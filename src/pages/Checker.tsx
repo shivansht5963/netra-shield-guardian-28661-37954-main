@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertCircle, CheckCircle, Shield, ShieldAlert, Link2, Lock, Globe, Award, Database } from "lucide-react";
+import "@/components/styles/WarningAnimation.css";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,28 @@ const Checker = () => {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DetectionResult | null>(null);
+  const [isHighRisk, setIsHighRisk] = useState(false);
+  
+  useEffect(() => {
+    if (result) {
+      const riskInfo = getRiskLevel(result);
+      if (riskInfo.level === 'dangerous') {
+        setIsHighRisk(true);
+        // Play alert sound three times with delays
+        const playAlertSound = () => {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.volume = 0.8;
+          audio.play();
+        };
+        
+        playAlertSound(); // Play first time
+        setTimeout(playAlertSound, 1000); // Play second time after 1 second
+        setTimeout(playAlertSound, 2000); // Play third time after 2 seconds
+      } else {
+        setIsHighRisk(false);
+      }
+    }
+  }, [result]);
 
   const normalizeUrl = (inputUrl: string): string => {
     let normalized = inputUrl.trim();
@@ -106,7 +129,7 @@ const Checker = () => {
     } else if (result.SCORE >= 140 && result.SCORE < 160) {
       console.log('Matched: GENERALLY SAFE');
       return { level: 'safe', label: 'GENERALLY SAFE' };
-    } else if (result.SCORE >= 100 && result.SCORE < 140) {
+    } else if (result.SCORE > 100 && result.SCORE < 140) {
       console.log('Matched: SUSPICIOUS');
       return { level: 'suspicious', label: 'SUSPICIOUS' };
     } else {
@@ -150,12 +173,20 @@ const Checker = () => {
   return (
     <div className="min-h-screen relative">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-50/40 via-blue-50/20 to-white pointer-events-none"></div>
+      <div className={`absolute inset-0 transition-colors duration-1000 ${
+        isHighRisk 
+          ? 'warning-animate' 
+          : 'bg-gradient-to-b from-blue-50/40 via-blue-50/20 to-white'
+      } pointer-events-none`}></div>
       
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-300/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-float ${
+          isHighRisk ? 'bg-red-400/20' : 'bg-blue-400/20'
+        }`} />
+        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-float ${
+          isHighRisk ? 'bg-red-400/20' : 'bg-blue-300/20'
+        }`} style={{ animationDelay: "1s" }} />
       </div>
 
       <Navbar />
