@@ -13,7 +13,7 @@ const features = [
   },
   {
     icon: Zap,
-    title: "99.8% Accuracy",
+    title: "85.7% Accuracy",
     description: "Industry-leading precision powered by transformer models and gradient boosting algorithms.",
   },
   {

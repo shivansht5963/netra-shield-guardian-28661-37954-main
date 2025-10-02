@@ -64,7 +64,7 @@ const Hero = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 pt-8">
               {[
-                { value: "99.8%", label: "Accuracy" },
+                { value: "85.7%", label: "Accuracy" },
                 { value: "6 AI", label: "Models" },
                 { value: "<1s", label: "Detection" },
               ].map((stat, index) => (
